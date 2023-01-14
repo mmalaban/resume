@@ -1,0 +1,6 @@
+*.docx binary diff=word
+*.pdf binary diff=exif
+resume export-ignore
+.git* export-ignore
+readme.md export-ignore
+release.ps1 export-ignore
