@@ -1,50 +1,135 @@
-param([string]$release_type = "patch")
+param(
+    [string]$ReleaseType = "patch",
+    [string]$CommitMessage = "For release $Tag"
+)
 
 # Configuration variables
-$filename = "mmalabanan_resume"
-$resumes = ".\$filename.docx", ".\$filename.pdf"
-$archive = ".\$filename.zip"
-$onedrive = "C:\Users\mmala\OneDrive\Documents\resume"
+$Filename = "mmalabanan_resume"
+$Resumes = ".\$Filename.docx", ".\$Filename.pdf"
+$Archive = ".\$Filename.zip"
+$OneDrive = "C:\Users\mmala\OneDrive\Documents\resume"
 
 
-
+# ----------------------------------------------------------------------------------------------------------------
+# Main function of script
+# ----------------------------------------------------------------------------------------------------------------
 try {
-    # check to see if git is available
+    # ------------------------------------------------------------------------------------------------------------
+    # Check availability of git
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Check availability of git"
     & git --version | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "Cannot find git. Installation of git maybe required." }
 
-    # copy resumes to OneDrive
-    $copy_files = @{
-        Path = $resumes
-        Destination = $onedrive
+    # ------------------------------------------------------------------------------------------------------------
+    # Copy resumes to OneDrive
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Copy resumes to OneDrive"
+    $CopyFiles = @{
+        Path = $Resumes
+        Destination = $OneDrive
     }
     try{
-        Copy-Item -Force @copy_files
+        Copy-Item -Force @CopyFiles
     }
     catch {
-        throw "Was not able to copy $resumes to OneDrive."
+        throw "Was not able to copy $Resumes to OneDrive."
     }
 
-    # remove the old archive
-    if (Test-Path -Path $archive -PathType Leaf) {
-        Remove-Item -Force $archive
+    # ------------------------------------------------------------------------------------------------------------
+    # Remove the old archive
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Remove the old archive"
+    if (Test-Path -Path $Archive -PathType Leaf) {
+        try {
+            Remove-Item -Force $Archive
+        }
+        catch {
+            throw "Unable to remove old archive."
+        }
     }
 
-    # create an archive
-    $compress_files = @{
-        LiteralPath= $resumes
+    # ------------------------------------------------------------------------------------------------------------
+    # Create an archive
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Create an archive"
+    $CompressFiles = @{
+        LiteralPath= $Resumes
         CompressionLevel = "Optimal"
-        DestinationPath = $archive
+        DestinationPath = $Archive
     }
     try {
-        Compress-Archive @compress_files
+        Compress-Archive @CompressFiles
     }
     catch {
-        throw "Cannot create $archive."
+        throw "Cannot create $Archive."
     }
 
+    # ------------------------------------------------------------------------------------------------------------
+    # Get tag
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Get the latest tag"
+    [int]$major, [int]$minor, [int]$patch = (& git describe --tags --abbrev=0) -split "\."
+    if ($LASTEXITCODE -ne 0) { throw "Unable to get latest tag." }
+
+    # ------------------------------------------------------------------------------------------------------------
+    # Update tag
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Update tag"
+    if ("patch" -eq $releaseType) {
+        $patch = $patch + 1;
+    }
+    elseif ("minor" -eq $releaseType) {
+        $minor = $minor + 1;
+        $patch = 0;
+    }
+    elseif ("major" -eq $releaseType){
+        $major = $major + 1;
+        $minor = 0;
+        $patch = 0;
+    }
+    else {
+        throw "Unknown release type."
+    }
+
+    [string]$Tag = "$major.$minor.$patch"
+
+    # ------------------------------------------------------------------------------------------------------------
+    # Git add changed resume and archive
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Stage resume and archive"
+    & git add $Resumes $Archive
+    if ($LASTEXITCODE -ne 0) { throw "Unable to stage $Resumes or $Archive." }
+
+    # ------------------------------------------------------------------------------------------------------------
+    # Git commit changed resume and archive
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Commit resume and archive"
+    & git commit -m "$CommitMessage"
+    if ($LASTEXITCODE -ne 0) { throw "Unable to commit." }
+
+    # ------------------------------------------------------------------------------------------------------------
+    # Git tag
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Tag the lastest commit with $Tag"
+    & git tag $Tag
+    if ($LASTEXITCODE -ne 0) { throw "Unable to create tag." }
+
+    # ------------------------------------------------------------------------------------------------------------
+    # Git push
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Push the latest changes to github"
+    & git push
+    if ($LASTEXITCODE -ne 0) { throw "Unable to push to github." }
+
+    # ------------------------------------------------------------------------------------------------------------
+    # Git push tags
+    # ------------------------------------------------------------------------------------------------------------
+    Write-Host "Push the latest tag"
+    & git push --tags
+    if ($LASTEXITCODE -ne 0) { throw "Unable to push tags to github." }
 }
 catch {
     "Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"
-	exit 1
+    exit 1
 }
