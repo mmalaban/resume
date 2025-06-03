@@ -5,7 +5,26 @@
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage[margin=0.75in]{geometry}
+\usepackage{xparse}
+\usepackage{xfp}
+\usepackage{pgffor}
+\usepackage{enumitem}
 
+
+% this function/command is used for the skills.tex file 
+\newcommand{\skillrating}[1]{%
+    \ifnum\pdfstrcmp{#1}{1}=0 \faStar\fi%
+    \ifnum\pdfstrcmp{#1}{1.5}=0 \faStar\,\faStarHalf\fi%
+    \ifnum\pdfstrcmp{#1}{2}=0 \faStar\,\faStar\fi%
+    \ifnum\pdfstrcmp{#1}{2.5}=0 \faStar\,\faStar\,\faStarHalf\fi%
+    \ifnum\pdfstrcmp{#1}{3}=0 \faStar\,\faStar\,\faStar\fi%
+    \ifnum\pdfstrcmp{#1}{3.5}=0 \faStar\,\faStar\,\faStar\,\faStarHalf\fi%
+    \ifnum\pdfstrcmp{#1}{4}=0 \faStar\,\faStar\,\faStar\,\faStar\fi%
+    \ifnum\pdfstrcmp{#1}{4.5}=0 \faStar\,\faStar\,\faStar\,\faStar\,\faStarHalf\fi%
+    \ifnum\pdfstrcmp{#1}{5}=0 \faStar\,\faStar\,\faStar\,\faStar\,\faStar\fi%
+}
+
+% used for the hyperlinks in the contact information
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
@@ -30,5 +49,7 @@
 \input{education.tex}
 
 \input{certificates-training.tex}
+
+\input{skills.tex}
 
 \end{document}
