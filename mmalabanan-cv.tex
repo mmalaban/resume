@@ -24,6 +24,16 @@
     \ifnum\pdfstrcmp{#1}{5}=0 \faStar\,\faStar\,\faStar\,\faStar\,\faStar\fi%
 }
 
+% Certificate entry function
+% Usage: \certentry{Certificate Name}{Year}{Institution}{Platform/Location}{Type}
+\newcommand{\certentry}[5]{%
+    \vspace{0.5em}
+    \noindent
+    \textbf{#1} \hfill #2 \\
+    \textit{#3}, #4 \\
+    #5
+}
+
 % used for the hyperlinks in the contact information
 \hypersetup{
     colorlinks=true,
