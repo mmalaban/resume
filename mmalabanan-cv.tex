@@ -1,5 +1,11 @@
 \documentclass[11pt, letterpaper]{article}
 
+% Essential packages for searchable text
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+
+% Your existing packages
 \usepackage{fontawesome5}
 \usepackage{sourceserifpro}
 \usepackage{hyperref}
@@ -9,6 +15,23 @@
 \usepackage{xfp}
 \usepackage{pgffor}
 \usepackage{enumitem}
+
+% Enhanced hyperref setup
+\hypersetup{
+    pdftitle={Melvin Malabanan - Resume},
+    pdfauthor={Melvin Malabanan},
+    pdfsubject={Software Engineer Resume},
+    pdfkeywords={Software Engineer, AUTOSAR, Embedded Systems, AI},
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue,
+    pdfborder={0 0 0},
+    unicode=true,
+    pdfencoding=auto,
+    pdfcreator={LaTeX with hyperref},
+    pdfproducer={pdfTeX}
+}
 
 
 % this function/command is used for the skills.tex file 
